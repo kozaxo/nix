@@ -34,8 +34,8 @@
         exit 0
       fi
       echo "Installing VS Code via apt..."
-      /usr/bin/sudo curl -fsSLo /usr/share/keyrings/microsoft.gpg \
-        https://packages.microsoft.com/keys/microsoft.asc
+      curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        | /usr/bin/sudo gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
       echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
         | /usr/bin/sudo tee /etc/apt/sources.list.d/vscode.list
       /usr/bin/sudo apt-get update -qq
