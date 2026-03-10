@@ -21,11 +21,28 @@
     podman-compose
   ];
 
-  # --- programs ---
-
-  programs.vscode.enable = true;
-
   # --- activations ---
+
+  # -- vs code --
+  # Installed via apt: the Nix VS Code package requires its Chromium SUID sandbox
+  # helper to be owned by root (mode 4755), which Nix cannot set on non-NixOS Linux.
+  home.activation.installVSCode = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    ${pkgs.writeShellScript "install-vscode" ''
+      set -euo pipefail
+      if [ -x /usr/bin/code ]; then
+        echo "VS Code already installed, skipping."
+        exit 0
+      fi
+      echo "Installing VS Code via apt..."
+      /usr/bin/sudo curl -fsSLo /usr/share/keyrings/microsoft.gpg \
+        https://packages.microsoft.com/keys/microsoft.asc
+      echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+        | /usr/bin/sudo tee /etc/apt/sources.list.d/vscode.list
+      /usr/bin/sudo apt-get update -qq
+      /usr/bin/sudo apt-get install -y code
+      echo "VS Code installed."
+    ''}
+  '';
 
   # -- brave browser --
   # Installed via apt: the Nix brave package requires its SUID sandbox helper
@@ -90,7 +107,7 @@
   '';
 
   # -- completion message --
-  home.activation.completionMessage = lib.hm.dag.entryAfter ["setDefaultShell" "setDefaultTerminal" "installBrave"] ''
+  home.activation.completionMessage = lib.hm.dag.entryAfter ["setDefaultShell" "setDefaultTerminal" "installBrave" "installVSCode"] ''
     ${pkgs.writeShellScript "completion-message" ''
       echo ""
       echo "====================================================="
