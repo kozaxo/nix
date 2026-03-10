@@ -23,7 +23,13 @@
 
   # --- programs ---
 
-  programs.vscode.enable = true;
+  # The Nix VS Code packages normally require either a SUID sandbox (vscode) or
+  # unprivileged user namespaces (vscode-fhs). Neither is available on stock Ubuntu,
+  # so pass --no-sandbox via the package's commandLineArgs override instead.
+  programs.vscode = {
+    enable  = true;
+    package = pkgs.vscode.override { commandLineArgs = "--no-sandbox"; };
+  };
 
   # --- activations ---
 
