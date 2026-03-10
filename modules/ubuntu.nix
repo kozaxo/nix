@@ -23,12 +23,12 @@
 
   # --- programs ---
 
-  # vscode-fhs wraps VS Code in an FHS-compatible environment via user namespaces,
-  # avoiding the SUID sandbox requirement that breaks the regular Nix package on
-  # non-NixOS Linux.
+  # The Nix VS Code packages normally require either a SUID sandbox (vscode) or
+  # unprivileged user namespaces (vscode-fhs). Neither is available on stock Ubuntu,
+  # so pass --no-sandbox via the package's commandLineArgs override instead.
   programs.vscode = {
     enable  = true;
-    package = pkgs.vscode-fhs;
+    package = pkgs.vscode.override { commandLineArgs = "--no-sandbox"; };
   };
 
   # --- activations ---
